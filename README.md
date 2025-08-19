@@ -17,10 +17,12 @@ Currently returns a list of hardcoded books via a REST endpoint. Future versions
 ---
 
 ## 📂 Project Structure
-/Controllers -> API controllers (e.g., BooksController.cs)
-/Services -> Business logic (BookService.cs)
-/Models -> Data models (Book.cs)
-Program.cs -> App entry point & DI setup
+
+- **/Controllers** → API controllers (e.g., `BooksController.cs`)  
+- **/Services** → Business logic (e.g., `BookService.cs`)  
+- **/Models** → Data models (e.g., `Book.cs`)  
+- **Program.cs** → Application entry point & Dependency Injection setup  
+
 
 ## 🔧 How to Run
 1. Clone this repository:
