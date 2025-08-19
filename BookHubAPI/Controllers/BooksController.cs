@@ -17,13 +17,16 @@ namespace BookingClients.Controllers
 			_bookService = bookService;
 		}
 
-		[HttpGet]
-		public IEnumerable<Book> Get()
-		{
-			return _bookService.GetAllBooks();
-		}
+        [HttpGet]
+        public IEnumerable<Book> Get(
+    [FromQuery] string author = null,
+    [FromQuery] string title = null,
+    [FromQuery] int? year = null)
+        {
+            return _bookService.GetAllBooks(author, title, year);
+        }
 
-		[HttpPost]
+        [HttpPost]
 		public IActionResult AddBook([FromBody] Book book)
 		{
 			_bookService.AddBook(book);
