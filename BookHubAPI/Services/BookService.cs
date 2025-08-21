@@ -1,23 +1,29 @@
 using BookingClients.Models;
+using BookHubAPI.Data;
+using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Linq;  // needed for LINQ
+using System.Linq;
 
 namespace BookingClients.Services
 {
     public class BookService
     {
-        private int nextId = 1; // auto-increment ID
-        private readonly List<Book> _books = new();
+        private readonly BookContext _context;
+
+        public BookService(BookContext context)
+        {
+            _context = context;
+        }
 
         public List<Book> GetAllBooks(string author = null, string title = null, int? year = null)
         {
-            var query = _books.AsEnumerable();
+            var query = _context.Books.AsQueryable();
 
             if (!string.IsNullOrEmpty(author))
-                query = query.Where(b => b.Author == author);
+                query = query.Where(b => b.Author.Contains(author));
 
             if (!string.IsNullOrEmpty(title))
-                query = query.Where(b => b.Title == title);
+                query = query.Where(b => b.Title.Contains(title));
 
             if (year.HasValue)
                 query = query.Where(b => b.Year == year.Value);
@@ -27,11 +33,8 @@ namespace BookingClients.Services
 
         public void AddBook(Book book)
         {
-            book.Id = nextId;
-            nextId++;
-
-            // No need to reset other properties
-            _books.Add(book);
+            _context.Books.Add(book);
+            _context.SaveChanges();
         }
     }
 }

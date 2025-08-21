@@ -1,24 +1,27 @@
+using Microsoft.EntityFrameworkCore;
 using BookingClients.Services;
+using BookingClients.Models;
+using BookingClients.Data;   // <-- add this
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// services
 builder.Services.AddSingleton<BookService>();
-builder.Services.AddControllers();  // <-- add this so controllers are recognized
+
+builder.Services.AddDbContext<BookContext>(options =>
+    options.UseSqlite("Data Source=books.db"));
+
+builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseDeveloperExceptionPage();  // show detailed errors in dev
+    app.UseDeveloperExceptionPage();
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
-
-app.UseAuthorization();  // keep this if you plan to add auth later
-
-app.MapControllers();  // <-- map controller endpoints
-
+app.UseAuthorization();
+app.MapControllers();
 app.Run();
