@@ -1,10 +1,7 @@
-using BookingClients.Models;
-using BookHubAPI.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
+using BookingClients.Data;     // FIXED: points to the corrected namespace
+using BookingClients.Models;   // FIXED
 
-namespace BookingClients.Services
+namespace BookingClients.Services   // FIXED namespace
 {
     public class BookService
     {
@@ -15,7 +12,12 @@ namespace BookingClients.Services
             _context = context;
         }
 
-        public List<Book> GetAllBooks(string author = null, string title = null, int? year = null)
+        public IEnumerable<Book> GetBooks()
+        {
+            return _context.Books.ToList();
+        }
+
+        public IEnumerable<Book> GetAllBooks(string? author = null, string? title = null, int? year = null)
         {
             var query = _context.Books.AsQueryable();
 
@@ -31,10 +33,12 @@ namespace BookingClients.Services
             return query.ToList();
         }
 
+
         public void AddBook(Book book)
         {
             _context.Books.Add(book);
             _context.SaveChanges();
         }
+
     }
 }
