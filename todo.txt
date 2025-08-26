@@ -1,0 +1,19 @@
+﻿Next natural steps 🚀
+
+Now that the core is working, we can build on it slowly:
+
+Add Update + Delete endpoints
+
+So you can do full CRUD (not just create/get).
+
+Validation
+
+e.g. don’t allow empty Title or Author.
+
+DTOs (Data Transfer Objects)
+
+So your API doesn’t expose EF models directly.
+
+Swagger UI
+
+For a built-in testing interface (instead of just Postman).

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2rem;
+        }
+
+        input, button {
+            margin: 0.5rem;
+            padding: 0.5rem;
+        }
+
+        .book {
+            margin: 0.25rem 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Book Manager</h1>
+
+    <h2>Add a Book</h2>
+    <input id="title" placeholder="Title">
+    <input id="author" placeholder="Author">
+    <button onclick="addBook()">Add</button>
+
+    <h2>All Books</h2>
+    <div id="book-list"></div>
+
+    <script>const API_URL = "http://localhost:5288/books"; // adjust port if needed
+
+    async function loadBooks() {
+      const res = await fetch(API_URL);
+      const books = await res.json();
+      document.getElementById("book-list").innerHTML = books
+        .map(b => `<div class="book">${b.id}: <b>${b.title}</b> by ${b.author}</div>`)
+        .join("");
+    }
+
+    async function addBook() {
+      const title = document.getElementById("title").value;
+      const author = document.getElementById("author").value;
+
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ title, author })
+      });
+
+      document.getElementById("title").value = "";
+      document.getElementById("author").value = "";
+      loadBooks();
+    }
+
+    loadBooks();</script>
+</body>
+</html>
