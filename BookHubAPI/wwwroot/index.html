@@ -27,34 +27,139 @@
     <input id="author" placeholder="Author">
     <button onclick="addBook()">Add</button>
 
-    <h2>All Books</h2>
-    <div id="book-list"></div>
+    <h2>Edit Book</h2>
+    <form id="editBookForm">
+        <input type="hidden" id="editId">
+        <input type="text" id="editTitle" placeholder="Title" required>
+        <input type="text" id="editAuthor" placeholder="Author" required>
+        <button type="submit">Update</button>
+    </form>
+   <h2>All Books</h2>
+<table id="booksTable" border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody></tbody>
+</table>
 
-    <script>const API_URL = "http://localhost:5288/books"; // adjust port if needed
 
-    async function loadBooks() {
-      const res = await fetch(API_URL);
-      const books = await res.json();
-      document.getElementById("book-list").innerHTML = books
-        .map(b => `<div class="book">${b.id}: <b>${b.title}</b> by ${b.author}</div>`)
-        .join("");
-    }
+    <script>
+        const API_URL = "http://localhost:5288/books"; // adjust port if needed
 
-    async function addBook() {
-      const title = document.getElementById("title").value;
-      const author = document.getElementById("author").value;
+        function loadBooks() {
+            fetch("http://localhost:5288/books")
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("#booksTable tbody");
+                    tbody.innerHTML = "";
 
-      await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ title, author })
-      });
+                    data.forEach(book => {
+                        const row = document.createElement("tr");
 
-      document.getElementById("title").value = "";
-      document.getElementById("author").value = "";
-      loadBooks();
-    }
+                        row.innerHTML = `
+                        <td>${book.id}</td>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>
+                            <button onclick="editBook(${book.id}, '${book.title}', '${book.author}')">Edit</button>
+                            <button onclick="deleteBook(${book.id})">Delete</button>
+                        </td>
+                    `;
 
-    loadBooks();</script>
+                        tbody.appendChild(row);
+                    });
+                });
+        }
+
+
+        async function addBook() {
+            const title = document.getElementById("title").value;
+            const author = document.getElementById("author").value;
+
+            await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, author })
+            });
+
+
+            document.getElementById("title").value = "";
+            document.getElementById("author").value = "";
+            loadBooks();
+        }
+        function loadBooks() {
+            fetch("http://localhost:5288/books")
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("#booksTable tbody");
+                    tbody.innerHTML = "";
+
+                    data.forEach(book => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                        <td>${book.id}</td>
+                        <td>${book.title}</td>
+                        <td>${book.author}</td>
+                        <td>
+                            <button onclick="editBook(${book.id}, '${book.title}', '${book.author}')">Edit</button>
+                            <button onclick="deleteBook(${book.id})">Delete</button>
+                        </td>
+                    `;
+
+                        tbody.appendChild(row);
+                    });
+                });
+        }
+
+        function editBook(id, title, author) {
+            document.getElementById("editId").value = id;
+            document.getElementById("editTitle").value = title;
+            document.getElementById("editAuthor").value = author;
+        }
+
+        document.getElementById("editBookForm").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const id = document.getElementById("editId").value;
+            const title = document.getElementById("editTitle").value;
+            const author = document.getElementById("editAuthor").value;
+
+            fetch(`http://localhost:5288/books/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title, author })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        loadBooks();
+                        document.getElementById("editBookForm").reset();
+                    } else {
+                        alert("Update failed");
+                    }
+                });
+        });
+
+        async function deleteBook(id) {
+            if (!confirm("Are you sure you want to delete this book?")) return;
+
+            const response = await fetch(`${API_URL}/${id}`, {
+                method: "DELETE"
+            });
+
+            if (response.ok) {
+                loadBooks(); // refresh the table
+            } else {
+                alert("Failed to delete the book");
+            }
+        }
+
+
+      </script>
 </body>
 </html>

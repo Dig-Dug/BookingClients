@@ -2,18 +2,66 @@
 
 Now that the core is working, we can build on it slowly:
 
-Add Update + Delete endpoints
 
-So you can do full CRUD (not just create/get).
 
-Validation
 
-e.g. don’t allow empty Title or Author.
 
-DTOs (Data Transfer Objects)
+Phase 1 – Stabilize & Clean
 
-So your API doesn’t expose EF models directly.
+✅ Validation: ensure Title and Author aren’t empty.
 
-Swagger UI
+✅ DTOs (Data Transfer Objects): avoid exposing EF models directly.
 
-For a built-in testing interface (instead of just Postman).
+✅ Swagger UI: built-in testing interface, so you don’t need Postman for everything.
+
+Goal: API is safe, clean, and easy to test.
+
+Phase 2 – CRUD Enhancements
+
+✅ Update & Delete endpoints (done).
+
+✅ Proper HTTP response codes (404 when item not found, 400 for validation errors).
+
+✅ Optional: timestamps for created/updated.
+
+Goal: Complete RESTful API behavior.
+
+Phase 3 – Query & Filter Enhancements
+
+✅ Filtering with query parameters (author, title, year).
+
+✅ Pagination (page, pageSize) using LINQ Skip() and Take().
+
+✅ Optional: sorting by field (e.g., Title ASC/DESC).
+
+Goal: API can handle larger datasets efficiently.
+
+Phase 4 – Security
+
+✅ Authentication with JWT: users log in, get a token, secure endpoints.
+
+✅ Role-based authorization (optional, e.g., admin vs. normal users).
+
+✅ HTTPS enforcement & CORS policies.
+
+Goal: Only authorized users can modify data.
+
+Phase 5 – Front-End Integration
+
+✅ Minimal front-end (React or Blazor) that consumes your API.
+
+✅ Use forms for Add/Edit, list for Display, Delete buttons, etc.
+
+✅ Optional: client-side validation to complement server-side validation.
+
+Goal: Full-stack application where users can interact with the API visually.
+
+Phase 6 – Advanced & Extras
+
+✅ Swagger enhancements: XML comments, response descriptions.
+
+✅ Testing: unit tests for services, integration tests for controllers.
+
+✅ Optional features: search suggestions, CSV import/export, or book cover images.
+
+Goal: Production-ready, maintainable, and testable app.
