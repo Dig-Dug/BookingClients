@@ -65,3 +65,13 @@ Phase 6 – Advanced & Extras
 ✅ Optional features: search suggestions, CSV import/export, or book cover images.
 
 Goal: Production-ready, maintainable, and testable app.
+
+
+---------
+hashes/UUID for validation
+
+controlling:
+
+
+
+

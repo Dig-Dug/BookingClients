@@ -1,5 +1,6 @@
 using BookingClients.Models;
 using BookingClients.Services;
+using BookingClients.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.Sqlite;
 using System.Collections.Generic;
@@ -17,24 +18,45 @@ namespace BookingClients.Controllers
             _bookService = bookService;
         }
 
-        [HttpGet]
+      /*  [HttpGet]
         public IEnumerable<Book> Get(
             [FromQuery] string? author = null,
             [FromQuery] string? title = null,
             [FromQuery] int? year = null)
         {
             return _bookService.GetAllBooks(author, title, year);
+        }*/
+        
+        [HttpGet]
+        public IEnumerable<BookFilterDTO> Get([FromQuery] BookFilterDTO filter)
+        {
+            return _bookService.GetAllBooks(filter);
         }
 
+
         [HttpPost]
-        public IActionResult AddBook([FromBody] Book book)
+        public IActionResult AddBook([FromBody] BookFilterDTO bookDto)
         {
+            if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author))
+                return BadRequest("Title and Author cannot be empty.");
+
+            var book = new Book
+            {
+                Title = bookDto.Title,
+                Author = bookDto.Author,
+                Year = bookDto.Year ?? 0
+            };
+
             _bookService.AddBook(book);
-            return CreatedAtAction(nameof(Get), new { id = book.Id }, book);
+            return CreatedAtAction(nameof(Get), new { id = book.Id }, bookDto);
         }
+
         [HttpPut("{id}")]
         public IActionResult UpdateBook(int id, Book updatedBook)
         {
+            if (string.IsNullOrWhiteSpace(updatedBook.Title) || string.IsNullOrWhiteSpace(updatedBook.Author))
+                return BadRequest("Title and Author cannot be empty.");
+
             using var connection = new SqliteConnection("Data Source=books.db");
             connection.Open();
 

@@ -1,7 +1,9 @@
-using BookingClients.Data;     // FIXED: points to the corrected namespace
-using BookingClients.Models;   // FIXED
+using BookingClients.Data;     
+using BookingClients.Models;   
+using BookingClients.DTOs;
 
-namespace BookingClients.Services   // FIXED namespace
+
+namespace BookingClients.Services  
 {
     public class BookService
     {
@@ -17,21 +19,43 @@ namespace BookingClients.Services   // FIXED namespace
             return _context.Books.ToList();
         }
 
-        public IEnumerable<Book> GetAllBooks(string? author = null, string? title = null, int? year = null)
+        /*   public IEnumerable<Book> GetAllBooks(string? author = null, string? title = null, int? year = null)
+           {
+               var query = _context.Books.AsQueryable();
+
+               if (!string.IsNullOrEmpty(author))
+                   query = query.Where(b => b.Author.Contains(author));
+
+               if (!string.IsNullOrEmpty(title))
+                   query = query.Where(b => b.Title.Contains(title));
+
+               if (year.HasValue)
+                   query = query.Where(b => b.Year == year.Value);
+
+               return query.ToList();
+           }*/
+        public IEnumerable<BookFilterDTO> GetAllBooks(BookFilterDTO filter)
         {
             var query = _context.Books.AsQueryable();
 
-            if (!string.IsNullOrEmpty(author))
-                query = query.Where(b => b.Author.Contains(author));
+            if (!string.IsNullOrEmpty(filter.Title))
+                query = query.Where(b => b.Title.Contains(filter.Title));
 
-            if (!string.IsNullOrEmpty(title))
-                query = query.Where(b => b.Title.Contains(title));
+            if (!string.IsNullOrEmpty(filter.Author))
+                query = query.Where(b => b.Author.Contains(filter.Author));
 
-            if (year.HasValue)
-                query = query.Where(b => b.Year == year.Value);
+            if (filter.Year.HasValue)
+                query = query.Where(b => b.Year == filter.Year);
 
-            return query.ToList();
+            return query.Select(b => new BookFilterDTO
+            {
+                Id = b.Id,
+                Title = b.Title,
+                Author = b.Author,
+                Year = b.Year
+            }).ToList();
         }
+
 
 
         public void AddBook(Book book)
