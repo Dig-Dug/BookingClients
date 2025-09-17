@@ -228,28 +228,80 @@
     <script>
         const API_URL = "http://localhost:5288/books"; // adjust port if needed
 
+        function loadBooks() {
+            fetch("http://localhost:5288/books")
+                .then(response => response.json())
+                .then(data => {
+                    const tbody = document.querySelector("#booksTable tbody");
+                    tbody.innerHTML = "";
+
+                    data.forEach(book => {
+                        const row = document.createElement("tr");
+
+                        row.innerHTML = `
+                            <td>${book.id}</td>
+                            <td>${book.title}</td>
+                            <td>${book.author}</td>
+                            <td>${book.year}</td>
+                            <td>
+        <button onclick="editBook(${book.id}, '${book.title}', '${book.author}', ${book.year})">Edit</button>
+        <button onclick="deleteBook(${book.id})">Delete</button>
+    </td>
+                  `;
+
+                        tbody.appendChild(row);
+                    });
+                });
+        }
+
+
+
         async function addBook() {
             const title = document.getElementById("title").value.trim();
             const author = document.getElementById("author").value.trim();
-            const yearValue = document.getElementById("year").value;
+            const yearValue = document.getElementById("year").value.trim();
             const year = yearValue ? parseInt(yearValue) : null;
 
-            if (!title || !author) {
-                alert("Title and Author cannot be empty.");
+            // Validate title
+            if (!title || title.length < 2) {
+                alert("Title must be at least 2 characters long.");
                 return;
+            }
+
+            // Validate author
+            if (!author || author.length < 2) {
+                alert("Author must be at least 2 characters long.");
+                return;
+            }
+
+            // Validate year
+            if (yearValue) {
+                if (isNaN(year) || year <= 0) {
+                    alert("Year must be a positive number.");
+                    return;
+                }
+                if (year > new Date().getFullYear()) {
+                    alert("Year cannot be in the future.");
+                    return;
+                }
             }
 
             await fetch(API_URL, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title, author, year })
+                body: JSON.stringify({
+                    Title: title,
+                    Author: author,
+                    Year: year
+                })
             });
-
+            
             document.getElementById("title").value = "";
             document.getElementById("author").value = "";
             document.getElementById("year").value = "";
             loadBooks();
         }
+
 
       
 

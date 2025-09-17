@@ -1,4 +1,4 @@
-using BookingClients.Models;
+﻿using BookingClients.Models;
 using BookingClients.Services;
 using BookingClients.DTOs;
 using Microsoft.AspNetCore.Mvc;
@@ -18,18 +18,28 @@ namespace BookingClients.Controllers
             _bookService = bookService;
         }
 
-      /*  [HttpGet]
-        public IEnumerable<Book> Get(
-            [FromQuery] string? author = null,
-            [FromQuery] string? title = null,
-            [FromQuery] int? year = null)
-        {
-            return _bookService.GetAllBooks(author, title, year);
-        }*/
-        
+        /*  [HttpGet]
+          public IEnumerable<Book> Get(
+              [FromQuery] string? author = null,
+              [FromQuery] string? title = null,
+              [FromQuery] int? year = null)
+          {
+              return _bookService.GetAllBooks(author, title, year);
+          }*/
+
         [HttpGet]
-        public IEnumerable<BookFilterDTO> Get([FromQuery] BookFilterDTO filter)
+        public IEnumerable<Book> Get([FromQuery] BookFilterDTO? filter)
+       // public IEnumerable<Book> Get()
         {
+            if (filter == null || (string.IsNullOrWhiteSpace(filter.Title) &&
+                                      string.IsNullOrWhiteSpace(filter.Author) &&
+                                      filter.Year == null))
+            {
+                // No filters → return everything
+                return _bookService.GetAllBooks();
+            }
+
+            // Filters exist → return filtered result
             return _bookService.GetAllBooks(filter);
         }
 
@@ -40,16 +50,20 @@ namespace BookingClients.Controllers
             if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author))
                 return BadRequest("Title and Author cannot be empty.");
 
+            if (bookDto.Year.HasValue && (bookDto.Year < 1 || bookDto.Year > DateTime.Now.Year))
+                return BadRequest("Invalid year. Must be between 1 and the current year.");
+
             var book = new Book
             {
-                Title = bookDto.Title,
-                Author = bookDto.Author,
-                Year = bookDto.Year ?? 0
+                Title = bookDto.Title.Trim(),
+                Author = bookDto.Author.Trim(),
+                Year = bookDto.Year ?? throw new ArgumentException("Year is required")
             };
 
             _bookService.AddBook(book);
-            return CreatedAtAction(nameof(Get), new { id = book.Id }, bookDto);
+            return CreatedAtAction(nameof(Get), new { id = book.Id }, book);
         }
+
 
         [HttpPut("{id}")]
         public IActionResult UpdateBook(int id, Book updatedBook)
@@ -73,6 +87,7 @@ namespace BookingClients.Controllers
             var rowsAffected = command.ExecuteNonQuery();
             return rowsAffected > 0 ? Ok() : NotFound();
         }
+
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
