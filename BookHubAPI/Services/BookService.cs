@@ -34,20 +34,23 @@ namespace BookingClients.Services
 
                return query.ToList();
            }*/
-        public IEnumerable<BookFilterDTO> GetAllBooks(BookFilterDTO filter)
+        public IEnumerable<BookDTO> GetAllBooks(BookFilterDTO? filter = null)
         {
             var query = _context.Books.AsQueryable();
 
-            if (!string.IsNullOrEmpty(filter.Title))
-                query = query.Where(b => b.Title.Contains(filter.Title));
+            if (filter != null)
+            {
+                if (!string.IsNullOrEmpty(filter.Title))
+                    query = query.Where(b => b.Title.Contains(filter.Title));
 
-            if (!string.IsNullOrEmpty(filter.Author))
-                query = query.Where(b => b.Author.Contains(filter.Author));
+                if (!string.IsNullOrEmpty(filter.Author))
+                    query = query.Where(b => b.Author.Contains(filter.Author));
 
-            if (filter.Year.HasValue)
-                query = query.Where(b => b.Year == filter.Year);
+                if (filter.Year.HasValue)
+                    query = query.Where(b => b.Year == filter.Year);
+            }
 
-            return query.Select(b => new BookFilterDTO
+            return query.Select(b => new BookDTO
             {
                 Id = b.Id,
                 Title = b.Title,
@@ -55,6 +58,7 @@ namespace BookingClients.Services
                 Year = b.Year
             }).ToList();
         }
+
 
 
 

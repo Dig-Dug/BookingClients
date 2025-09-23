@@ -28,27 +28,16 @@ namespace BookingClients.Controllers
           }*/
 
         [HttpGet]
-        public IEnumerable<Book> Get([FromQuery] BookFilterDTO? filter)
-       // public IEnumerable<Book> Get()
+        public IEnumerable<BookDTO> Get([FromQuery] BookFilterDTO? filter)
         {
-            if (filter == null || (string.IsNullOrWhiteSpace(filter.Title) &&
-                                      string.IsNullOrWhiteSpace(filter.Author) &&
-                                      filter.Year == null))
-            {
-                // No filters → return everything
-                return _bookService.GetAllBooks();
-            }
-
-            // Filters exist → return filtered result
             return _bookService.GetAllBooks(filter);
         }
 
-
         [HttpPost]
-        public IActionResult AddBook([FromBody] BookFilterDTO bookDto)
+        public IActionResult AddBook([FromBody] BookDTO bookDto)
         {
-            if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author))
-                return BadRequest("Title and Author cannot be empty.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
             if (bookDto.Year.HasValue && (bookDto.Year < 1 || bookDto.Year > DateTime.Now.Year))
                 return BadRequest("Invalid year. Must be between 1 and the current year.");
@@ -57,12 +46,14 @@ namespace BookingClients.Controllers
             {
                 Title = bookDto.Title.Trim(),
                 Author = bookDto.Author.Trim(),
-                Year = bookDto.Year ?? throw new ArgumentException("Year is required")
+                Year = bookDto.Year ?? 0
             };
 
             _bookService.AddBook(book);
-            return CreatedAtAction(nameof(Get), new { id = book.Id }, book);
+
+            return CreatedAtAction(nameof(Get), new { id = book.Id }, bookDto);
         }
+
 
 
         [HttpPut("{id}")]
