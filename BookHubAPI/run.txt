@@ -1,4 +1,4 @@
-dotnet build, clear, run
+dotnet watch run, build, clear, run
 
 SQLite -->  C:\Users\Automan\Downloads\SQLiteDatabaseBrowserPortable
 DB --> C:\Users\Automan\Documents\PROGRAMMING\C#\BookingClients\BookHubAPI

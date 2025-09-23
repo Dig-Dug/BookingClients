@@ -1,9 +1,8 @@
-using BookingClients.Data;     
-using BookingClients.Models;   
+using BookingClients.Data;
+using BookingClients.Models;
 using BookingClients.DTOs;
 
-
-namespace BookingClients.Services  
+namespace BookingClients.Services
 {
     public class BookService
     {
@@ -14,26 +13,6 @@ namespace BookingClients.Services
             _context = context;
         }
 
-        public IEnumerable<Book> GetBooks()
-        {
-            return _context.Books.ToList();
-        }
-
-        /*   public IEnumerable<Book> GetAllBooks(string? author = null, string? title = null, int? year = null)
-           {
-               var query = _context.Books.AsQueryable();
-
-               if (!string.IsNullOrEmpty(author))
-                   query = query.Where(b => b.Author.Contains(author));
-
-               if (!string.IsNullOrEmpty(title))
-                   query = query.Where(b => b.Title.Contains(title));
-
-               if (year.HasValue)
-                   query = query.Where(b => b.Year == year.Value);
-
-               return query.ToList();
-           }*/
         public IEnumerable<BookDTO> GetAllBooks(BookFilterDTO? filter = null)
         {
             var query = _context.Books.AsQueryable();
@@ -59,8 +38,10 @@ namespace BookingClients.Services
             }).ToList();
         }
 
-
-
+        public Book? GetBookById(int id)
+        {
+            return _context.Books.FirstOrDefault(b => b.Id == id);
+        }
 
         public void AddBook(Book book)
         {
@@ -68,5 +49,29 @@ namespace BookingClients.Services
             _context.SaveChanges();
         }
 
+        public bool UpdateBook(int id, Book updatedBook)
+        {
+            var existingBook = _context.Books.FirstOrDefault(b => b.Id == id);
+            if (existingBook == null)
+                return false;
+
+            existingBook.Title = updatedBook.Title;
+            existingBook.Author = updatedBook.Author;
+            existingBook.Year = updatedBook.Year;
+
+            _context.SaveChanges();
+            return true;
+        }
+
+        public bool DeleteBook(int id)
+        {
+            var book = _context.Books.FirstOrDefault(b => b.Id == id);
+            if (book == null)
+                return false;
+
+            _context.Books.Remove(book);
+            _context.SaveChanges();
+            return true;
+        }
     }
 }

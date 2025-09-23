@@ -4,7 +4,7 @@ Now that the core is working, we can build on it slowly:
 
 
 
-
+/**
 
 Phase 1 – Stabilize & Clean
 
@@ -25,6 +25,8 @@ Phase 2 – CRUD Enhancements
 ✅ Optional: timestamps for created/updated.
 
 Goal: Complete RESTful API behavior.
+
+/**
 
 Phase 3 – Query & Filter Enhancements
 
@@ -67,10 +69,8 @@ Phase 6 – Advanced & Extras
 Goal: Production-ready, maintainable, and testable app.
 
 
----------
-hashes/UUID for validation
-
-controlling:
+--------->>>>>>>>
+Phase 3 – Query & Filter Enhancements → Pagination + Sorting.
 
 
 

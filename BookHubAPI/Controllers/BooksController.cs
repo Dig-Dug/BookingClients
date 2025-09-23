@@ -2,8 +2,6 @@
 using BookingClients.Services;
 using BookingClients.DTOs;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Data.Sqlite;
-using System.Collections.Generic;
 
 namespace BookingClients.Controllers
 {
@@ -18,21 +16,36 @@ namespace BookingClients.Controllers
             _bookService = bookService;
         }
 
-        /*  [HttpGet]
-          public IEnumerable<Book> Get(
-              [FromQuery] string? author = null,
-              [FromQuery] string? title = null,
-              [FromQuery] int? year = null)
-          {
-              return _bookService.GetAllBooks(author, title, year);
-          }*/
-
+        // GET /books?title=...&author=...&year=...
         [HttpGet]
         public IEnumerable<BookDTO> Get([FromQuery] BookFilterDTO? filter)
         {
             return _bookService.GetAllBooks(filter);
         }
 
+        // GET /books/{id}
+        [HttpGet("{id}")]
+        public IActionResult GetBook(int id)
+        {
+            if (id <= 0)
+                return BadRequest(new { error = "Invalid book ID." });
+
+            var book = _bookService.GetBookById(id);
+            if (book == null)
+                return NotFound(new { error = $"Book with ID {id} not found." });
+
+            var bookDto = new BookDTO
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year
+            };
+
+            return Ok(bookDto);
+        }
+
+        // POST /books
         [HttpPost]
         public IActionResult AddBook([FromBody] BookDTO bookDto)
         {
@@ -40,7 +53,7 @@ namespace BookingClients.Controllers
                 return BadRequest(ModelState);
 
             if (bookDto.Year.HasValue && (bookDto.Year < 1 || bookDto.Year > DateTime.Now.Year))
-                return BadRequest("Invalid year. Must be between 1 and the current year.");
+                return BadRequest(new { error = "Invalid year. Must be between 1 and the current year." });
 
             var book = new Book
             {
@@ -49,48 +62,70 @@ namespace BookingClients.Controllers
                 Year = bookDto.Year ?? 0
             };
 
-            _bookService.AddBook(book);
+            try
+            {
+                _bookService.AddBook(book);
 
-            return CreatedAtAction(nameof(Get), new { id = book.Id }, bookDto);
+                return CreatedAtAction(
+                    nameof(GetBook),
+                    new { id = book.Id },
+                    new BookDTO
+                    {
+                        Id = book.Id,
+                        Title = book.Title,
+                        Author = book.Author,
+                        Year = book.Year
+                    });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { error = "An error occurred while saving the book." });
+            }
         }
 
-
-
+        // PUT /books/{id}
         [HttpPut("{id}")]
-        public IActionResult UpdateBook(int id, Book updatedBook)
+        public IActionResult UpdateBook(int id, [FromBody] BookDTO bookDto)
         {
-            if (string.IsNullOrWhiteSpace(updatedBook.Title) || string.IsNullOrWhiteSpace(updatedBook.Author))
-                return BadRequest("Title and Author cannot be empty.");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            using var connection = new SqliteConnection("Data Source=books.db");
-            connection.Open();
+            if (string.IsNullOrWhiteSpace(bookDto.Title) || string.IsNullOrWhiteSpace(bookDto.Author))
+                return BadRequest(new { error = "Title and Author cannot be empty." });
 
-            var command = connection.CreateCommand();
-            command.CommandText = @"
-        UPDATE Books
-        SET Title = $title, Author = $author
-        WHERE Id = $id;
-    ";
-            command.Parameters.AddWithValue("$id", id);
-            command.Parameters.AddWithValue("$title", updatedBook.Title);
-            command.Parameters.AddWithValue("$author", updatedBook.Author);
+            if (bookDto.Year.HasValue && (bookDto.Year < 1 || bookDto.Year > DateTime.Now.Year))
+                return BadRequest(new { error = "Invalid year. Must be between 1 and the current year." });
 
-            var rowsAffected = command.ExecuteNonQuery();
-            return rowsAffected > 0 ? Ok() : NotFound();
+            var book = _bookService.GetBookById(id);
+            if (book == null)
+                return NotFound(new { error = $"Book with ID {id} not found." });
+
+            book.Title = bookDto.Title.Trim();
+            book.Author = bookDto.Author.Trim();
+            book.Year = bookDto.Year ?? book.Year;
+
+            var success = _bookService.UpdateBook(id, book);
+            if (!success)
+                return StatusCode(500, new { error = "Failed to update the book." });
+
+            return Ok(new BookDTO
+            {
+                Id = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                Year = book.Year
+            });
         }
 
+        // DELETE /books/{id}
         [HttpDelete("{id}")]
         public IActionResult DeleteBook(int id)
         {
-            using var connection = new SqliteConnection("Data Source=books.db");
-            connection.Open();
+            var success = _bookService.DeleteBook(id);
+            if (!success)
+                return NotFound(new { error = $"Book with ID {id} not found." });
 
-            var command = connection.CreateCommand();
-            command.CommandText = "DELETE FROM Books WHERE Id = $id;";
-            command.Parameters.AddWithValue("$id", id);
-
-            var rowsAffected = command.ExecuteNonQuery();
-            return rowsAffected > 0 ? Ok() : NotFound();
+            return NoContent(); // 204
         }
     }
 }
