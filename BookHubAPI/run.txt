@@ -2,7 +2,9 @@ dotnet watch run, build, clear, run
 
 SQLite -->  C:\Users\Automan\Downloads\SQLiteDatabaseBrowserPortable
 DB --> C:\Users\Automan\Documents\PROGRAMMING\C#\BookingClients\BookHubAPI
-cd BookHubAPI
+run together :
+    cd BookHubAPI <--for backend
+    cd BookHubUI  <--for blazor
 
 
 

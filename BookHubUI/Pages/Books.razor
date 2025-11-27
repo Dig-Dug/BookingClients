@@ -1,0 +1,47 @@
+@page "/books"
+@inject BookApiService BookService
+@using BookHubUI.Services
+
+@using BookHubAPI.DTOs
+
+<h3>Books</h3>
+
+@if (books == null)
+{
+    <p>Loading...</p>
+}
+else if (books.Count == 0)
+{
+    <p>No books found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Year</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in books)
+            {
+                <tr>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>@book.Year</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    List<BookDTO>? books;
+
+    protected override async Task OnInitializedAsync()
+    {
+        books = await BookService.GetBooksAsync();
+    }
+}

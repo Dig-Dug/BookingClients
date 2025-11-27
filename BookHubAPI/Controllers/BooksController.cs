@@ -2,8 +2,9 @@
 using BookingClients.Services;
 using BookingClients.DTOs;
 using Microsoft.AspNetCore.Mvc;
-
-namespace BookingClients.Controllers
+using BookHubAPI.DTOs;
+//namespace BookingClients.Controllers
+namespace BookHubAPI.DTOs
 {
     [ApiController]
     [Route("[controller]")]

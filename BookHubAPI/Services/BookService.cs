@@ -1,6 +1,7 @@
 using BookingClients.Data;
 using BookingClients.Models;
 using BookingClients.DTOs;
+using BookHubAPI.DTOs;
 
 namespace BookingClients.Services
 {

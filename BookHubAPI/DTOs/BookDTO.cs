@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BookingClients.DTOs
+//namespace BookingClients.DTOs
+namespace BookHubAPI.DTOs
 {
     public class BookDTO
     {
