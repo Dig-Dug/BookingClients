@@ -12,7 +12,8 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddRazorComponents();
 
 builder.Services.AddScoped(sp =>
-    new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
+ //new HttpClient { BaseAddress = new Uri("https://localhost:5001/") });
+ new HttpClient { BaseAddress = new Uri("http://localhost:5288/") });
 builder.Services.AddScoped<BookApiService>();
 var app = builder.Build();
 
@@ -24,7 +25,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 
